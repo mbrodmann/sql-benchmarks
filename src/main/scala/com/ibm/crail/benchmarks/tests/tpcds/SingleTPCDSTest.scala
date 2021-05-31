@@ -12,7 +12,11 @@ class SingleTPCDSTest(val options: ParseOptions, spark:SparkSession) extends SQL
   private val query = TPCDSQueries.query(options.getTPCDSQuery+".sql")
   private val result = spark.sql(query)
 
-  override def execute(): String = takeAction(options, result)
+  override def execute(): String = {
+    println("Running single SQL query")
+    takeAction(options, result)
+  }
+    
 
   override def explain(): Unit = result.explain(true)
 

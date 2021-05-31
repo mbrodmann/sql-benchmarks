@@ -115,7 +115,10 @@ abstract class SQLTest(val spark: SparkSession) {
         "collected " + result.limit(items).collect().length + " items"
       }
       case Count() => {
-        "count, Dataset.persist().count() " + result.persist().count() + " items "
+        val res: String = "count, Dataset.persist().count() " + result.persist().count() + " items "
+        //unpersist to not cache ...
+        result.unpersist()
+        res
       }
       //option("compression","none")
       case Save(fileName: String) => {

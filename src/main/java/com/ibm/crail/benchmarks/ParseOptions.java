@@ -42,6 +42,7 @@ public class ParseOptions {
     private Map<String, String> inputFormatOptions;
     private Map<String, String> outputFormatOptions;
     private int pageRankIterations = 8;
+    public int repetitions;
 
     public ParseOptions(){
 
@@ -80,6 +81,7 @@ public class ParseOptions {
         this.action = new Count();
         this.doWarmup = false;
         this.tpcdsQuery = null;
+        this.repetitions = 1;
 
         this.inputFormatOptions = new HashMap<>(4);
         this.outputFormatOptions = new HashMap<>(4);
@@ -121,6 +123,18 @@ public class ParseOptions {
                 if(this.isTestPageRank()){
                     /* for page rank, we have no op */
                     this.action = new Noop();
+                }
+                // for now just run some random query ...
+                if(this.isRepeatedTest()){
+                    System.out.println(this.test);
+                    System.out.println(this.test.split("-")[1]);
+                    System.out.println(this.test.split("-")[2]);
+
+                    this.tpcdsQuery = this.test.split("-")[1];
+                    this.repetitions = Integer.parseInt(this.test.split("-")[2]);
+
+                    System.out.println("tpcdsQuery: " + this.tpcdsQuery);
+                    System.out.println("repetitions: " + this.repetitions);
                 }
             }
             if(cmd.hasOption("gi")){
@@ -209,7 +223,7 @@ public class ParseOptions {
             errorAbort("ERROR:" + " please specify some input files for the SQL test");
         }
         // check valid test names
-        if(!isTestEquiJoin() && !isTestQuery() && !isTestTPCDS() && !isTestReadOnly() && !isTestPageRank()) {
+        if(!isTestEquiJoin() && !isTestQuery() && !isTestTPCDS() && !isRepeatedTest() && !isTestReadOnly() && !isTestPageRank()) {
             errorAbort("ERROR: illegal test name : " + this.test);
         }
         /* some sanity checks */
@@ -223,7 +237,11 @@ public class ParseOptions {
     }
 
     public boolean isTestQuery(){
-        return !(this.tpcdsQuery == null);
+        return !(this.tpcdsQuery == null) && !this.isRepeatedTest();
+    }
+
+    public boolean isRepeatedTest(){
+        return (this.test.startsWith("repeat"));
     }
 
     public boolean isTestTPCDS(){
